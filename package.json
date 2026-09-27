@@ -12,7 +12,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/slavaolesik/netapi-mcp"
+    "url": "https://github.com/coderockers/netapi-mcp"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.30.1",

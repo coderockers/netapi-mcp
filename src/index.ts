@@ -43,7 +43,7 @@ function landingPage(env: Env): Response {
     'Claude Code:   claude mcp add --transport http netapi https://mcp.netapi.com/mcp',
     'Cursor / Claude Desktop / others: add an MCP server of type "http" (streamable) with the URL above.',
     '',
-    `Docs: ${env.NETAPI_SITE}/help/api/   Source: https://github.com/slavaolesik/netapi-mcp`,
+    `Docs: ${env.NETAPI_SITE}/help/api/   Source: https://github.com/coderockers/netapi-mcp`,
     ''
   ].join('\n');
   return new Response(text, { headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'public, max-age=3600' } });
