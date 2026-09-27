@@ -1,0 +1,17 @@
+# Cloudflare Worker "netapi-mcp": the NetAPI MCP server at https://mcp.netapi.com/mcp
+name = "netapi-mcp"
+main = "src/index.ts"
+compatibility_date = "2026-06-01"
+compatibility_flags = ["nodejs_compat"]
+
+routes = [
+  { pattern = "mcp.netapi.com", custom_domain = true }
+]
+
+[observability]
+enabled = true
+
+[vars]
+# JSON API the tools call; every tool call is one GET here
+NETAPI_JSON_API = "https://netapi.com/api-json/"
+NETAPI_SITE = "https://netapi.com"
