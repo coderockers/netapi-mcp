@@ -34,7 +34,7 @@ With a [NetAPI plan](https://netapi.com/plans/):
 | `get_download_url` | A 24-hour link to a domain list or dataset file (active / new / deleted domains, one zone or all zones). |
 | `account_info` | Plan and limits of the connected account. |
 
-Free data (Top 1M, compromised feeds) is published under CC BY 4.0: credit NetAPI and link to `https://netapi.com/`.
+Free data (Top 1M, compromised feeds) is published under CC BY 4.0: credit NetAPI and link to `https://netapi.com/`. Full description of the tools and the connection steps: [netapi.com/help/mcp/](https://netapi.com/help/mcp/).
 
 ## Connect
 
@@ -73,7 +73,7 @@ claude mcp add --transport http netapi https://mcp.netapi.com/mcp/public
 
 ## Rate limits
 
-Without an account (`/mcp/public`): 30 requests per minute and 1,000 per day per IP for point lookups, 10 / 200 for list tools, 6 / 100 for `search_new_domains` (100 results per call). A free NetAPI account multiplies these by five; paid plans raise them further and Pro has no daily caps. Limits and error messages come from the JSON API, see the [API documentation](https://netapi.com/help/api/).
+Without an account (`/mcp/public`): 30 requests per minute and 1,000 per day per IP for point lookups, 10 / 200 for list tools, 6 / 100 for `search_new_domains` (100 results per call). A free NetAPI account raises them to 60 / 5,000, 30 / 1,000 and 30 / 500 (500 results per call); paid plans raise them further, unlock `lookup_domain`, `lookup_ip` and `get_download_url`, and Pro has no daily caps. Limits and error messages come from the JSON API: see the [request-limit table](https://netapi.com/help/api/#rate-limits) and the [MCP server page](https://netapi.com/help/mcp/).
 
 ## How it works
 
@@ -92,7 +92,7 @@ Test with the MCP Inspector: `npx @modelcontextprotocol/inspector`, add a Stream
 
 ## MCP Registry
 
-`server.json` is the manifest for the [MCP Registry](https://registry.modelcontextprotocol.io/) (`com.netapi/mcp`, remote `https://mcp.netapi.com/mcp`). Publishing: `mcp-publisher login dns --domain netapi.com` (or `http`) to prove the domain, then `mcp-publisher publish` from this directory.
+The server is listed in the [MCP Registry](https://registry.modelcontextprotocol.io/) as `com.netapi/mcp` (remote `https://mcp.netapi.com/mcp`); `server.json` is its manifest. A new version: bump `version` in `server.json`, `mcp-publisher login http --domain netapi.com` (domain proof via `/.well-known/mcp-registry-auth`; `dns` works too), then `mcp-publisher publish` from this directory.
 
 ## License
 
