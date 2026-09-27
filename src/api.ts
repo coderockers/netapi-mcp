@@ -19,6 +19,25 @@ export interface ApiResult {
 
 export type Params = Record<string, string | number | boolean | undefined | null>;
 
+/**
+ * Headers of a request to the site: the caller's token, and the real client IP with the shared secret (the site
+ * sees the Worker's egress IP otherwise; it trusts the forwarded IP only when the secret matches).
+ */
+export function apiHeaders(env: Env, token: string | null, clientIp: string | null): Record<string, string> {
+  const headers: Record<string, string> = {
+    Accept: 'application/json',
+    'User-Agent': 'netapi-mcp/0.2 (+https://mcp.netapi.com)'
+  };
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+  if (clientIp && env.NETAPI_MCP_SECRET) {
+    headers['X-MCP-Client-IP'] = clientIp;
+    headers['X-NetAPI-MCP-Secret'] = env.NETAPI_MCP_SECRET;
+  }
+  return headers;
+}
+
 export async function callApi(env: Env, method: string, params: Params, token: string | null, clientIp: string | null): Promise<ApiResult> {
   const url = new URL(env.NETAPI_JSON_API);
   url.searchParams.set('method', method);
@@ -30,21 +49,7 @@ export async function callApi(env: Env, method: string, params: Params, token: s
     url.searchParams.set(key, String(value));
   }
 
-  const headers: Record<string, string> = {
-    Accept: 'application/json',
-    'User-Agent': 'netapi-mcp/0.1 (+https://mcp.netapi.com)'
-  };
-  if (token) {
-    headers.Authorization = `Bearer ${token}`;
-  }
-  if (clientIp && env.NETAPI_MCP_SECRET) {
-    // the site sees the Worker's egress IP, so the real client IP travels in a header; the site trusts it only
-    // when the shared secret matches (anonymous rate limits are keyed by that IP)
-    headers['X-MCP-Client-IP'] = clientIp;
-    headers['X-NetAPI-MCP-Secret'] = env.NETAPI_MCP_SECRET;
-  }
-
-  const response = await fetch(url.toString(), { headers, cf: { cacheTtl: 0 } } as RequestInit);
+  const response = await fetch(url.toString(), { headers: apiHeaders(env, token, clientIp), cf: { cacheTtl: 0 } } as RequestInit);
   const text = await response.text();
   let data: unknown;
   try {

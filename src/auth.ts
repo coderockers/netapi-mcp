@@ -8,7 +8,7 @@
  * The token is validated by the site (GET /api-json/?method=me); results are cached per isolate for a minute.
  */
 
-import type { Env } from './api.js';
+import { apiHeaders, type Env } from './api.js';
 
 export interface AuthResult {
   ok: boolean;
@@ -26,7 +26,7 @@ async function sha256(text: string): Promise<string> {
   return Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, '0')).join('');
 }
 
-export async function validateToken(env: Env, token: string): Promise<AuthResult> {
+export async function validateToken(env: Env, token: string, clientIp: string | null): Promise<AuthResult> {
   const key = await sha256(token);
   const hit = cache.get(key);
   if (hit && hit.until > Date.now()) {
@@ -37,9 +37,7 @@ export async function validateToken(env: Env, token: string): Promise<AuthResult
   url.searchParams.set('source', 'mcp');
   let result: AuthResult;
   try {
-    const response = await fetch(url.toString(), {
-      headers: { Authorization: `Bearer ${token}`, Accept: 'application/json', 'User-Agent': 'netapi-mcp/0.1' }
-    });
+    const response = await fetch(url.toString(), { headers: apiHeaders(env, token, clientIp) });
     if (response.ok) {
       result = { ok: true, status: 200, error: '', message: '' };
     } else if (response.status === 401 || response.status === 403) {

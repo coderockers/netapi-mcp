@@ -109,7 +109,7 @@ export default {
       if (!token) {
         return withCors(unauthorized(resourceMetadataUrl, '', 'Sign in with your NetAPI account, or use /mcp/public for the free tools without an account.'));
       }
-      const auth = await validateToken(env, token);
+      const auth = await validateToken(env, token, request.headers.get('CF-Connecting-IP'));
       if (!auth.ok) {
         return withCors(unauthorized(resourceMetadataUrl, auth.error, auth.message));
       }
