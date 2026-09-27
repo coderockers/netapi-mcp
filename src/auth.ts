@@ -19,6 +19,7 @@ export interface AuthResult {
 }
 
 const CACHE_TTL_MS = 60_000;
+const VALIDATE_TIMEOUT_MS = 10_000;
 const cache = new Map<string, { until: number; result: AuthResult }>();
 
 async function sha256(text: string): Promise<string> {
@@ -37,7 +38,7 @@ export async function validateToken(env: Env, token: string, clientIp: string | 
   url.searchParams.set('source', 'mcp');
   let result: AuthResult;
   try {
-    const response = await fetch(url.toString(), { headers: apiHeaders(env, token, clientIp) });
+    const response = await fetch(url.toString(), { headers: apiHeaders(env, token, clientIp), signal: AbortSignal.timeout(VALIDATE_TIMEOUT_MS) });
     if (response.ok) {
       result = { ok: true, status: 200, error: '', message: '' };
     } else if (response.status === 401 || response.status === 403) {

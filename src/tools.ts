@@ -1,13 +1,13 @@
 /**
  * Tool definitions of the NetAPI MCP server. Each tool maps to one method of the JSON API.
- * Free tools work without a token; the paid ones need a NetAPI account with an active plan
- * ("Authorization: Bearer <api_token>", OAuth sign-in coming).
+ * Free tools work without a token; the paid ones need a NetAPI account with an active plan (OAuth sign-in or
+ * "Authorization: Bearer <api_token>"). On /mcp/public (no token) only the free tools are registered.
  */
 
 import { z } from 'zod';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
-import { callApi, type Env, type Params } from './api.js';
+import { callApi, USER_AGENT, type Env, type Params } from './api.js';
 
 export interface ToolContext {
   env: Env;
@@ -27,6 +27,8 @@ const READ_ONLY = { readOnlyHint: true, destructiveHint: false, idempotentHint: 
 
 export function registerTools(server: McpServer, ctx: ToolContext): void {
   const call = (method: string, params: Params) => callApi(ctx.env, method, params, ctx.token, ctx.clientIp).then(result);
+  // /mcp/public has no token: the account / plan tools would only answer 401, so they are not offered there
+  const withAccount = ctx.token !== null;
 
   server.registerTool(
     'check_compromised',
@@ -166,6 +168,7 @@ export function registerTools(server: McpServer, ctx: ToolContext): void {
     async ({ min_domains, cctld }) => call('zones', { min_domains, cctld: cctld === undefined ? undefined : cctld ? 1 : 0 })
   );
 
+  if (withAccount) {
   server.registerTool(
     'account_info',
     {
@@ -220,6 +223,7 @@ export function registerTools(server: McpServer, ctx: ToolContext): void {
     },
     async ({ zone_tld, dataset_type, filter_type, format }) => call('download-url', { zone_tld, dataset_type, filter_type, format })
   );
+  }
 
   server.registerResource(
     'about-netapi',
@@ -230,7 +234,7 @@ export function registerTools(server: McpServer, ctx: ToolContext): void {
       mimeType: 'text/markdown'
     },
     async (uri) => {
-      const response = await fetch(`${ctx.env.NETAPI_SITE}/llms.txt`, { headers: { 'User-Agent': 'netapi-mcp/0.1' } });
+      const response = await fetch(`${ctx.env.NETAPI_SITE}/llms.txt`, { headers: { 'User-Agent': USER_AGENT }, signal: AbortSignal.timeout(15_000) });
       return { contents: [{ uri: uri.href, mimeType: 'text/markdown', text: await response.text() }] };
     }
   );

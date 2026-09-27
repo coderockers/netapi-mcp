@@ -7,7 +7,7 @@ An [MCP](https://modelcontextprotocol.io/) server that gives AI assistants and a
 | URL | Who | What |
 |-----|-----|------|
 | `https://mcp.netapi.com/mcp` | signed-in NetAPI account (OAuth, or `Authorization: Bearer <api_token>`) | all tools; a free account is enough for the free tools with higher limits, a [plan](https://netapi.com/plans/) unlocks the paid ones |
-| `https://mcp.netapi.com/mcp/public` | no account | the free tools with anonymous limits |
+| `https://mcp.netapi.com/mcp/public` | no account | the free tools only (the account and plan tools are not listed there), anonymous limits |
 
 ## Tools
 

@@ -53,7 +53,7 @@ function landingPage(env: Env): Response {
     'claude.ai / ChatGPT / Cursor / others: add a remote MCP server with the URL above and sign in when asked;',
     'clients without OAuth support can send "Authorization: Bearer <api_token>" instead.',
     '',
-    `Docs: ${env.NETAPI_SITE}/help/api/   Source: https://github.com/coderockers/netapi-mcp`,
+    `Docs: ${env.NETAPI_SITE}/help/mcp/   Source: https://github.com/coderockers/netapi-mcp`,
     ''
   ].join('\n');
   return new Response(text, { headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'public, max-age=3600' } });
@@ -68,7 +68,7 @@ function protectedResourceMetadata(env: Env, origin: string): Response {
       scopes_supported: ['netapi'],
       bearer_methods_supported: ['header'],
       resource_name: 'NetAPI MCP server',
-      resource_documentation: 'https://github.com/coderockers/netapi-mcp'
+      resource_documentation: `${env.NETAPI_SITE}/help/mcp/`
     }),
     { headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=3600' } }
   );

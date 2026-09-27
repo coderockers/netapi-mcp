@@ -19,6 +19,10 @@ export interface ApiResult {
 
 export type Params = Record<string, string | number | boolean | undefined | null>;
 
+export const USER_AGENT = 'netapi-mcp/0.2 (+https://mcp.netapi.com)';
+/** a tool call waits this long for the site before it fails with a bad_response error */
+const API_TIMEOUT_MS = 30_000;
+
 /**
  * Headers of a request to the site: the caller's token, and the real client IP with the shared secret (the site
  * sees the Worker's egress IP otherwise; it trusts the forwarded IP only when the secret matches).
@@ -26,7 +30,7 @@ export type Params = Record<string, string | number | boolean | undefined | null
 export function apiHeaders(env: Env, token: string | null, clientIp: string | null): Record<string, string> {
   const headers: Record<string, string> = {
     Accept: 'application/json',
-    'User-Agent': 'netapi-mcp/0.2 (+https://mcp.netapi.com)'
+    'User-Agent': USER_AGENT
   };
   if (token) {
     headers.Authorization = `Bearer ${token}`;
@@ -49,7 +53,13 @@ export async function callApi(env: Env, method: string, params: Params, token: s
     url.searchParams.set(key, String(value));
   }
 
-  const response = await fetch(url.toString(), { headers: apiHeaders(env, token, clientIp), cf: { cacheTtl: 0 } } as RequestInit);
+  let response: Response;
+  try {
+    response = await fetch(url.toString(), { headers: apiHeaders(env, token, clientIp), signal: AbortSignal.timeout(API_TIMEOUT_MS), cf: { cacheTtl: 0 } } as RequestInit);
+  } catch (e) {
+    const reason = e instanceof Error ? e.message : String(e);
+    return { ok: false, status: 503, data: { error: { code: 'unavailable', message: `NetAPI did not answer (${reason}). Try again in a moment.` } } };
+  }
   const text = await response.text();
   let data: unknown;
   try {
