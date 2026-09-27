@@ -90,6 +90,10 @@ npm run deploy     # wrangler deploy (or connect the repo in the Cloudflare dash
 
 Test with the MCP Inspector: `npx @modelcontextprotocol/inspector`, add a Streamable HTTP server with `http://localhost:8787/mcp/public` (or the production URL to test the sign-in).
 
+## MCP Registry
+
+`server.json` is the manifest for the [MCP Registry](https://registry.modelcontextprotocol.io/) (`com.netapi/mcp`, remote `https://mcp.netapi.com/mcp`). Publishing: `mcp-publisher login dns --domain netapi.com` (or `http`) to prove the domain, then `mcp-publisher publish` from this directory.
+
 ## License
 
 MIT for the code in this repository. NetAPI data is subject to the [Terms of Service](https://netapi.com/tos/); the free datasets are CC BY 4.0.

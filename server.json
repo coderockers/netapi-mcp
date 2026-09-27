@@ -1,0 +1,18 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "com.netapi/mcp",
+  "description": "Domain intelligence from NetAPI: compromised domain / IP checks, newly registered domain search, TLD, registrar and DNS-provider statistics, Top 1M ranks, and (with a plan) domain / IP lookups and domain list downloads.",
+  "title": "NetAPI",
+  "version": "0.2.0",
+  "websiteUrl": "https://netapi.com/help/mcp/",
+  "repository": {
+    "url": "https://github.com/coderockers/netapi-mcp",
+    "source": "github"
+  },
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.netapi.com/mcp"
+    }
+  ]
+}
