@@ -1,7 +1,7 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "com.netapi/mcp",
-  "description": "NetAPI domain data: compromised checks, new-domain search, TLD, registrar and DNS stats, Top 1M.",
+  "description": "Domain data by NetAPI: Top 1M domain ranks, compromised checks, new domain search, domain lists.",
   "title": "NetAPI",
   "version": "0.2.0",
   "websiteUrl": "https://netapi.com/help/mcp/",
