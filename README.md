@@ -2,11 +2,16 @@
 
 An [MCP](https://modelcontextprotocol.io/) server that gives AI assistants and agents (Claude, Cursor, ChatGPT, Windsurf, VS Code Copilot and any other MCP client) access to [NetAPI](https://netapi.com/) domain intelligence: registered domains of 1,584 TLDs, newly registered and deleted domains, DNS-provider and registrar data, the free NetAPI Top 1M popularity ranking and the compromised domain / IP feed.
 
-**Endpoint:** `https://mcp.netapi.com/mcp` (Streamable HTTP)
+**Endpoints (Streamable HTTP):**
+
+| URL | Who | What |
+|-----|-----|------|
+| `https://mcp.netapi.com/mcp` | signed-in NetAPI account (OAuth, or `Authorization: Bearer <api_token>`) | all tools; a free account is enough for the free tools with higher limits, a [plan](https://netapi.com/plans/) unlocks the paid ones |
+| `https://mcp.netapi.com/mcp/public` | no account | the free tools with anonymous limits |
 
 ## Tools
 
-Free, no account needed:
+Free (no plan needed):
 
 | Tool | What it answers |
 |------|-----------------|
@@ -20,7 +25,7 @@ Free, no account needed:
 | `dns_provider_info` | Domains, market share and growth of a DNS provider. |
 | `list_zones` | All 1,584 zones with their figures. |
 
-With a [NetAPI plan](https://netapi.com/plans/) (`Authorization: Bearer <api_token>`, the token is in the [dashboard](https://netapi.com/dashboard/)):
+With a [NetAPI plan](https://netapi.com/plans/):
 
 | Tool | What it answers |
 |------|-----------------|
@@ -33,19 +38,25 @@ Free data (Top 1M, compromised feeds) is published under CC BY 4.0: credit NetAP
 
 ## Connect
 
+The server speaks standard MCP OAuth (authorization server `https://netapi.com`, dynamic client registration, PKCE), so clients that support it show a NetAPI sign-in when you add `https://mcp.netapi.com/mcp`: sign in with your email code or Google, click **Allow access**, done. Connected apps are listed in your [dashboard](https://netapi.com/dashboard/), where you can disconnect them.
+
+**claude.ai / Claude Desktop:** Settings → Connectors → Add custom connector → URL `https://mcp.netapi.com/mcp` → Connect.
+
+**ChatGPT:** Settings → Connectors (developer mode) → Add → MCP server URL `https://mcp.netapi.com/mcp`, authentication OAuth.
+
 **Claude Code**
 
 ```bash
 claude mcp add --transport http netapi https://mcp.netapi.com/mcp
 ```
 
-With a NetAPI plan:
+then `/mcp` inside Claude Code to sign in. Without an account:
 
 ```bash
-claude mcp add --transport http netapi https://mcp.netapi.com/mcp --header "Authorization: Bearer YOUR_API_TOKEN"
+claude mcp add --transport http netapi https://mcp.netapi.com/mcp/public
 ```
 
-**Cursor** (`~/.cursor/mcp.json` or the project's `.cursor/mcp.json`)
+**Cursor** (`~/.cursor/mcp.json` or the project's `.cursor/mcp.json`): Cursor signs in through OAuth when you add the URL; a NetAPI API token works as well:
 
 ```json
 {
@@ -58,30 +69,26 @@ claude mcp add --transport http netapi https://mcp.netapi.com/mcp --header "Auth
 }
 ```
 
-Leave out `headers` for the free tools only.
-
-**Claude Desktop / claude.ai:** Settings → Connectors → Add custom connector → URL `https://mcp.netapi.com/mcp`.
-
-**Other clients:** add an MCP server of type "http" / "streamable-http" with the URL above.
+**Other clients:** add a remote MCP server of type "http" / "streamable-http" with one of the URLs above.
 
 ## Rate limits
 
-Free tools: 30 requests per minute and 1,000 per day per IP for point lookups, 10 / 200 for list tools, 6 / 100 for `search_new_domains` (100 results per call). A NetAPI account raises the limits; Pro has no daily caps. Limits and error messages come from the JSON API, see the [API documentation](https://netapi.com/help/api/).
+Without an account (`/mcp/public`): 30 requests per minute and 1,000 per day per IP for point lookups, 10 / 200 for list tools, 6 / 100 for `search_new_domains` (100 results per call). A free NetAPI account multiplies these by five; paid plans raise them further and Pro has no daily caps. Limits and error messages come from the JSON API, see the [API documentation](https://netapi.com/help/api/).
 
 ## How it works
 
-The Worker is a thin layer: every tool call is one GET request to the NetAPI JSON API (`https://netapi.com/api-json/`), the answer is returned to the client as JSON text. No data is stored in the Worker. Files are never streamed through it: `get_download_url` returns a temporary link instead.
+The Worker is a thin layer: every tool call is one GET request to the NetAPI JSON API (`https://netapi.com/api-json/`), the answer is returned to the client as JSON text. Tokens are validated by the site and cached for a minute; nothing else is stored in the Worker. `/.well-known/oauth-protected-resource` points clients to the authorization server. Files are never streamed through it: `get_download_url` returns a temporary link instead.
 
 ## Development
 
 ```bash
 npm install
 npm run typecheck
-npm run dev        # http://localhost:8787/mcp
+npm run dev        # http://localhost:8787/mcp (and /mcp/public)
 npm run deploy     # wrangler deploy (or connect the repo in the Cloudflare dashboard)
 ```
 
-Test with the MCP Inspector: `npx @modelcontextprotocol/inspector` and connect to `http://localhost:8787/mcp`.
+Test with the MCP Inspector: `npx @modelcontextprotocol/inspector`, add a Streamable HTTP server with `http://localhost:8787/mcp/public` (or the production URL to test the sign-in).
 
 ## License
 
