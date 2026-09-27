@@ -1,19 +1,26 @@
 /**
  * NetAPI MCP server (Cloudflare Worker).
  *
- * Endpoint: https://mcp.netapi.com/mcp (Streamable HTTP, stateless: every POST builds a fresh McpServer and
- * transport, so no Durable Objects or sessions are needed). Tools call the NetAPI JSON API
- * (https://netapi.com/api-json/); the caller's "Authorization: Bearer <token>" is passed through unchanged, the
- * site validates it and applies the rate limits.
+ * Endpoints (Streamable HTTP, stateless: every POST builds a fresh McpServer and transport, so no Durable
+ * Objects or sessions are needed):
+ *   /mcp         sign-in required: an OAuth access token from netapi.com (standard MCP flow: 401 ->
+ *                /.well-known/oauth-protected-resource -> netapi.com authorization server) or a NetAPI API
+ *                token in the Authorization header; a free account is enough, a plan unlocks the paid tools
+ *   /mcp/public  no account: the free tools with anonymous limits
+ * Tools call the NetAPI JSON API (https://netapi.com/api-json/); the caller's token is passed through
+ * unchanged, the site validates it and applies the rate limits.
  */
 
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { WebStandardStreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js';
 import { bearerToken, type Env } from './api.js';
 import { registerTools } from './tools.js';
+import { unauthorized, validateToken } from './auth.js';
 
-const SERVER_INFO = { name: 'netapi', version: '0.1.0' };
+const SERVER_INFO = { name: 'netapi', version: '0.2.0' };
 const MCP_PATHS = new Set(['/mcp', '/']);
+const PUBLIC_PATHS = new Set(['/mcp/public', '/public']);
+const PROTECTED_RESOURCE_PATHS = new Set(['/.well-known/oauth-protected-resource', '/.well-known/oauth-protected-resource/mcp']);
 
 const CORS_HEADERS: Record<string, string> = {
   'Access-Control-Allow-Origin': '*',
@@ -34,19 +41,37 @@ function landingPage(env: Env): Response {
   const text = [
     'NetAPI MCP server',
     '',
-    'MCP endpoint (Streamable HTTP): https://mcp.netapi.com/mcp',
+    'MCP endpoints (Streamable HTTP):',
+    '  https://mcp.netapi.com/mcp         sign in with your NetAPI account (a free account works; a plan unlocks the paid tools)',
+    '  https://mcp.netapi.com/mcp/public  no account: free tools only, anonymous limits',
     '',
-    'Free tools (no account): check_compromised, search_new_domains, tld_stats, domain_rank, top_websites, top_1m,',
+    'Free tools: check_compromised, search_new_domains, tld_stats, domain_rank, top_websites, top_1m,',
     'registrar_info, dns_provider_info, list_zones.',
-    'With a NetAPI plan (Authorization: Bearer <api_token>): lookup_domain, lookup_ip, get_download_url, account_info.',
+    'With a NetAPI plan: lookup_domain, lookup_ip, get_download_url, account_info.',
     '',
     'Claude Code:   claude mcp add --transport http netapi https://mcp.netapi.com/mcp',
-    'Cursor / Claude Desktop / others: add an MCP server of type "http" (streamable) with the URL above.',
+    'claude.ai / ChatGPT / Cursor / others: add a remote MCP server with the URL above and sign in when asked;',
+    'clients without OAuth support can send "Authorization: Bearer <api_token>" instead.',
     '',
     `Docs: ${env.NETAPI_SITE}/help/api/   Source: https://github.com/coderockers/netapi-mcp`,
     ''
   ].join('\n');
   return new Response(text, { headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'public, max-age=3600' } });
+}
+
+function protectedResourceMetadata(env: Env, origin: string): Response {
+  // RFC 9728: tells the MCP client which authorization server issues tokens for this resource
+  return new Response(
+    JSON.stringify({
+      resource: `${origin}/mcp`,
+      authorization_servers: [env.NETAPI_SITE],
+      scopes_supported: ['netapi'],
+      bearer_methods_supported: ['header'],
+      resource_name: 'NetAPI MCP server',
+      resource_documentation: 'https://github.com/coderockers/netapi-mcp'
+    }),
+    { headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=3600' } }
+  );
 }
 
 export default {
@@ -59,8 +84,12 @@ export default {
     if (url.pathname === '/health') {
       return new Response('ok', { headers: { 'Content-Type': 'text/plain' } });
     }
-    if (!MCP_PATHS.has(url.pathname)) {
-      return withCors(new Response('Not found. The MCP endpoint is /mcp', { status: 404, headers: { 'Content-Type': 'text/plain' } }));
+    if (PROTECTED_RESOURCE_PATHS.has(url.pathname)) {
+      return withCors(protectedResourceMetadata(env, url.origin));
+    }
+    const isPublic = PUBLIC_PATHS.has(url.pathname);
+    if (!MCP_PATHS.has(url.pathname) && !isPublic) {
+      return withCors(new Response('Not found. The MCP endpoints are /mcp and /mcp/public', { status: 404, headers: { 'Content-Type': 'text/plain' } }));
     }
     if (request.method === 'GET') {
       // a browser or a curl hitting the endpoint: explain; MCP clients use POST (stateless mode has no SSE stream)
@@ -74,16 +103,28 @@ export default {
       return withCors(new Response('Method Not Allowed', { status: 405, headers: { Allow: 'POST, OPTIONS' } }));
     }
 
+    const resourceMetadataUrl = `${url.origin}/.well-known/oauth-protected-resource`;
+    const token = bearerToken(request);
+    if (!isPublic) {
+      if (!token) {
+        return withCors(unauthorized(resourceMetadataUrl, '', 'Sign in with your NetAPI account, or use /mcp/public for the free tools without an account.'));
+      }
+      const auth = await validateToken(env, token);
+      if (!auth.ok) {
+        return withCors(unauthorized(resourceMetadataUrl, auth.error, auth.message));
+      }
+    }
+
     const server = new McpServer(SERVER_INFO, {
       instructions:
         'NetAPI provides domain intelligence: lists and datasets of registered domains for 1,584 TLDs, newly registered and ' +
         'deleted domains, DNS-provider and registrar data, a Top 1M popularity ranking and a compromised domain / IP feed. ' +
-        'Free tools need no account. Tools that need a plan return an error with a link to https://netapi.com/plans/ - tell ' +
+        'Free tools need no plan. Tools that need a plan return an error with a link to https://netapi.com/plans/ - tell ' +
         'the user how to get access instead of retrying. Cite netapi.com when you use the data.'
     });
     registerTools(server, {
       env,
-      token: bearerToken(request),
+      token: isPublic ? null : token,
       clientIp: request.headers.get('CF-Connecting-IP')
     });
 
