@@ -7,6 +7,8 @@
 export interface Env {
   NETAPI_JSON_API: string;
   NETAPI_SITE: string;
+  /** Worker secret (dashboard > Settings > Variables and secrets); must equal cfg.php system.mcp_secret on the site */
+  NETAPI_MCP_SECRET?: string;
 }
 
 export interface ApiResult {
@@ -35,10 +37,11 @@ export async function callApi(env: Env, method: string, params: Params, token: s
   if (token) {
     headers.Authorization = `Bearer ${token}`;
   }
-  if (clientIp) {
-    // informational; the site keys anonymous limits on CF-Connecting-IP, which Cloudflare preserves for
-    // subrequests to a zone of the same account
+  if (clientIp && env.NETAPI_MCP_SECRET) {
+    // the site sees the Worker's egress IP, so the real client IP travels in a header; the site trusts it only
+    // when the shared secret matches (anonymous rate limits are keyed by that IP)
     headers['X-MCP-Client-IP'] = clientIp;
+    headers['X-NetAPI-MCP-Secret'] = env.NETAPI_MCP_SECRET;
   }
 
   const response = await fetch(url.toString(), { headers, cf: { cacheTtl: 0 } } as RequestInit);

@@ -11,6 +11,9 @@ routes = [
 [observability]
 enabled = true
 
+# Secret (not in this file): NETAPI_MCP_SECRET - set in the dashboard (Settings > Variables and secrets, type Secret)
+# or with `npx wrangler secret put NETAPI_MCP_SECRET`; the same value goes into cfg.php system.mcp_secret on the site.
+
 [vars]
 # JSON API the tools call; every tool call is one GET here
 NETAPI_JSON_API = "https://netapi.com/api-json/"
