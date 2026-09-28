@@ -84,6 +84,13 @@ export default {
     if (url.pathname === '/health') {
       return new Response('ok', { headers: { 'Content-Type': 'text/plain' } });
     }
+    if (url.pathname === '/.well-known/openai-apps-challenge') {
+      // ChatGPT app-directory domain proof: exactly the token, nothing else
+      if (!env.OPENAI_APPS_CHALLENGE) {
+        return new Response('Not found', { status: 404, headers: { 'Content-Type': 'text/plain' } });
+      }
+      return new Response(env.OPENAI_APPS_CHALLENGE, { headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' } });
+    }
     if (PROTECTED_RESOURCE_PATHS.has(url.pathname)) {
       return withCors(protectedResourceMetadata(env, url.origin));
     }

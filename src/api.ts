@@ -9,6 +9,8 @@ export interface Env {
   NETAPI_SITE: string;
   /** Worker secret (dashboard > Settings > Variables and secrets); must equal cfg.php system.mcp_secret on the site */
   NETAPI_MCP_SECRET?: string;
+  /** Domain-verification token of the ChatGPT app-directory submission (public by design, wrangler.toml [vars]) */
+  OPENAI_APPS_CHALLENGE?: string;
 }
 
 export interface ApiResult {
