@@ -18,3 +18,5 @@ enabled = true
 # JSON API the tools call; every tool call is one GET here
 NETAPI_JSON_API = "https://netapi.com/api-json/"
 NETAPI_SITE = "https://netapi.com"
+# ChatGPT app-directory domain proof, served at /.well-known/openai-apps-challenge (public by design)
+OPENAI_APPS_CHALLENGE = "-uXEkV73AFvdjn2c9YnuLiXSQcqE2I7vetWvhPETyik"
