@@ -68,7 +68,7 @@ export async function validateToken(env: Env, token: string, clientIp: string | 
  * 401 that tells an MCP client where to authenticate (RFC 9728 resource metadata + RFC 6750 challenge).
  */
 export function unauthorized(resourceMetadataUrl: string, error: string, message: string): Response {
-  const parts = [`Bearer realm="netapi"`, `resource_metadata="${resourceMetadataUrl}"`];
+  const parts = [`Bearer realm="netapi"`, `resource_metadata="${resourceMetadataUrl}"`, `scope="netapi"`];
   if (error) {
     parts.push(`error="${error}"`, `error_description="${message.replace(/"/g, "'")}"`);
   }
