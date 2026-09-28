@@ -15,8 +15,30 @@ export interface ToolContext {
   clientIp: string | null;
 }
 
+/**
+ * ChatGPT app-directory rule (digital goods are not sold through apps): tool answers carry no purchase links.
+ * The JSON API adds a "plans" URL to plan errors and some answers; it is dropped here, the error message itself
+ * still says that the method needs a NetAPI plan.
+ */
+function withoutPurchaseLinks(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    return value.map(withoutPurchaseLinks);
+  }
+  if (value !== null && typeof value === 'object') {
+    const out: Record<string, unknown> = {};
+    for (const [key, item] of Object.entries(value as Record<string, unknown>)) {
+      if (key === 'plans') {
+        continue;
+      }
+      out[key] = withoutPurchaseLinks(item);
+    }
+    return out;
+  }
+  return value;
+}
+
 function result(res: { ok: boolean; status: number; data: unknown }): CallToolResult {
-  const text = JSON.stringify(res.data, null, 2);
+  const text = JSON.stringify(withoutPurchaseLinks(res.data), null, 2);
   if (res.ok) {
     return { content: [{ type: 'text', text }] };
   }

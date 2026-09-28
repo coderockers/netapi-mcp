@@ -119,8 +119,8 @@ export default {
       instructions:
         'NetAPI provides domain intelligence: lists and datasets of registered domains for 1,584 TLDs, newly registered and ' +
         'deleted domains, DNS-provider and registrar data, a Top 1M popularity ranking and a compromised domain / IP feed. ' +
-        'Free tools need no plan. Tools that need a plan return an error with a link to https://netapi.com/plans/ - tell ' +
-        'the user how to get access instead of retrying. Cite netapi.com when you use the data.'
+        'Free tools need no plan. Tools that need a NetAPI plan return an error saying so - tell the user that the ' +
+        'feature needs a NetAPI plan instead of retrying. Cite netapi.com when you use the data.'
     });
     registerTools(server, {
       env,
