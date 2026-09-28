@@ -19,7 +19,7 @@ Free (no plan needed):
 | `search_new_domains` | Domains registered in the last 1-7 days that contain a string: brand monitoring, typosquatting, phishing, keyword trends. |
 | `tld_stats` | Registry, active domains, new / deleted in 24 h, growth over 7-365 days, abuse rate, Top 1M presence, policies of a TLD. |
 | `domain_rank` | Rank of a domain in the NetAPI Top 1M and inside its TLD. |
-| `top_websites` | The most popular websites of a TLD (top .de, .fr, .jp ...). |
+| `top_websites` | The most popular websites of a country or TLD (Germany = .de, .fr, .io ...). |
 | `top_1m` | A slice of the Top 1M list. |
 | `registrar_info` | Size, rank and abuse rate of a registrar. |
 | `dns_provider_info` | Domains, market share and growth of a DNS provider. |
@@ -31,7 +31,7 @@ With a [NetAPI plan](https://netapi.com/plans/):
 |------|-----------------|
 | `lookup_domain` | Nameservers, IP, country, registration / expiration dates, registrar of a domain. |
 | `lookup_ip` | Domains hosted on an IP (reverse IP). |
-| `get_download_url` | A 24-hour link to a domain list or dataset file (active / new / deleted domains, one zone or all zones). |
+| `get_download_url` | A 24-hour link to a domain list or dataset file: the domains of a zone (active / new / deleted, one zone or all zones), of a DNS provider or of a registrar. Lists = domain names (any plan), datasets = one row per domain with nameservers, IP, country, emails, phones (Plus or Pro). |
 | `account_info` | Plan and limits of the connected account. |
 
 Free data (Top 1M, compromised feeds) is published under CC BY 4.0: credit NetAPI and link to `https://netapi.com/`. Full description of the tools and the connection steps: [netapi.com/help/mcp/](https://netapi.com/help/mcp/).

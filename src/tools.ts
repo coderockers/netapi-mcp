@@ -95,19 +95,21 @@ export function registerTools(server: McpServer, ctx: ToolContext): void {
   server.registerTool(
     'top_websites',
     {
-      title: 'Most popular websites of a TLD',
+      title: 'Most popular websites of a country or TLD',
       description:
-        'The most popular domains of one TLD (a slice of the NetAPI Top 1M), e.g. the top .de or .fr websites, with their ' +
-        'global rank. Available for the ~80 TLDs with at least 1,000 domains in the Top 1M. Up to 1,000 rows via ' +
-        'offset/limit; the full slice is a free CSV linked in the answer. Free.',
+        'The most popular domains of one TLD or country (a slice of the NetAPI Top 1M), e.g. the top websites of Germany ' +
+        '(.de) or of .io, with their global rank. A country means its ccTLD: sites of that country on .com are not included. ' +
+        'Available for the ~80 TLDs with at least 1,000 domains in the Top 1M. Up to 1,000 rows via offset/limit; the full ' +
+        'slice is a free CSV linked in the answer. Pass tld or country. Free.',
       inputSchema: {
-        tld: z.string().min(1).max(100).describe('TLD without the dot, e.g. "de"'),
+        tld: z.string().min(1).max(100).optional().describe('TLD without the dot, e.g. "de" or "io"'),
+        country: z.string().min(2).max(100).optional().describe('Country name in English (also German, French, Spanish) or a two-letter code, e.g. "Germany", "DE", "United Kingdom"'),
         limit: z.number().int().min(1).max(1000).optional().describe('Rows to return (default 10, max 100 without an account)'),
         offset: z.number().int().min(0).max(999).optional().describe('Rows to skip (default 0)')
       },
       annotations: READ_ONLY
     },
-    async ({ tld, limit, offset }) => call('top-websites', { tld, limit, offset })
+    async ({ tld, country, limit, offset }) => call('top-websites', { tld, country, limit, offset })
   );
 
   server.registerTool(
@@ -132,7 +134,8 @@ export function registerTools(server: McpServer, ctx: ToolContext): void {
       title: 'Domain registrar profile',
       description:
         'Size, rank and abuse figures of a domain registrar: number of domains, rank by size, compromised domains and abuse ' +
-        'rate versus the overall rate, link to the registrar page. Matches by brand ("GoDaddy"), legal name or numeric id. Free.',
+        'rate versus the overall rate, link to the registrar page. Matches by brand ("GoDaddy"), legal name or numeric id. ' +
+        'The returned id is what get_download_url takes as registrar_id for the list of all domains of the registrar. Free.',
       inputSchema: { query: z.string().min(1).max(100).describe('Registrar name, brand or id, e.g. "Namecheap"') },
       annotations: READ_ONLY
     },
@@ -145,7 +148,8 @@ export function registerTools(server: McpServer, ctx: ToolContext): void {
       title: 'DNS provider profile and market share',
       description:
         'Number of domains using a DNS (nameserver) provider, its market share and rank, share change over 30 days and one ' +
-        'year, one-year growth. Matches by alias ("cloudflare"), name or nameserver root ("awsdns"). Free.',
+        'year, one-year growth. Matches by alias ("cloudflare"), name or nameserver root ("awsdns"). The returned alias is ' +
+        'what get_download_url takes as dns_alias for the list of all domains using the provider. Free.',
       inputSchema: { query: z.string().min(1).max(100).describe('Provider alias, name or nameserver root, e.g. "cloudflare"') },
       annotations: READ_ONLY
     },
@@ -209,19 +213,25 @@ export function registerTools(server: McpServer, ctx: ToolContext): void {
     {
       title: 'Download link for a domain list or dataset',
       description:
-        'A temporary link (valid 24 hours) to a NetAPI file: the full list of active domains of a zone, its new domains of the ' +
-        'last 24 hours, its deleted domains, or the combined file of all zones; as a plain list (one domain per line) or a ' +
-        'dataset with DNS, IP, hostname, emails and phone numbers. Gzip CSV by default. Needs an active plan (Plus or Pro for datasets). ' +
-        'Download the file with the returned URL; do not try to read it through this server.',
+        'A temporary link (valid 24 hours) to a NetAPI file. Source, exactly one of: zone_tld (the domains of a zone, or ' +
+        '"all-zones"; filter active / new in the last 24 h / deleted in the last 24 h), dns_alias (all domains using a DNS ' +
+        'provider, alias from dns_provider_info) or registrar_id (all domains of a registrar, id from registrar_info). ' +
+        'Two file types, requested separately: "list" = domain names only (any plan), "dataset" = one row per domain with ' +
+        'nameservers, hostname, hosting IP and its country, emails and phone numbers (registrar datasets: registration and ' +
+        'expiry dates instead of nameservers and hostname; Plus or Pro plan). Gzip CSV by default. Download the file with the returned ' +
+        'URL; do not try to read it through this server.',
       inputSchema: {
-        zone_tld: z.string().min(1).max(100).describe('TLD without the dot, or "all-zones"'),
-        dataset_type: z.enum(['list', 'dataset']).describe('"list" = domain names only, "dataset" = with extra columns'),
-        filter_type: z.enum(['active', 'new', 'deleted']).describe('"active" = all current domains, "new" = last 24 h, "deleted" = dropped in the last 24 h (lists only)'),
+        zone_tld: z.string().min(1).max(100).optional().describe('TLD without the dot, or "all-zones"'),
+        dns_alias: z.string().min(1).max(100).optional().describe('DNS provider alias from dns_provider_info, e.g. "cloudflare"'),
+        registrar_id: z.number().int().min(1).optional().describe('Registrar id from registrar_info, e.g. 1068'),
+        dataset_type: z.enum(['list', 'dataset']).describe('"list" = domain names only, "dataset" = one row per domain with extra columns'),
+        filter_type: z.enum(['active', 'new', 'deleted']).optional().describe('Zones only: "active" (default) = all current domains, "new" = registered in the last 24 h, "deleted" = dropped in the last 24 h (lists only)'),
         format: z.enum(['gz', 'plain']).optional().describe('"gz" (default) or "plain" text; plain files of big zones are several GB')
       },
       annotations: READ_ONLY
     },
-    async ({ zone_tld, dataset_type, filter_type, format }) => call('download-url', { zone_tld, dataset_type, filter_type, format })
+    async ({ zone_tld, dns_alias, registrar_id, dataset_type, filter_type, format }) =>
+      call('download-url', { zone_tld, dns_alias, registrar_id, dataset_type, filter_type, format })
   );
   }
 

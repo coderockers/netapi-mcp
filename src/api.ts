@@ -19,7 +19,7 @@ export interface ApiResult {
 
 export type Params = Record<string, string | number | boolean | undefined | null>;
 
-export const USER_AGENT = 'netapi-mcp/0.2 (+https://mcp.netapi.com)';
+export const USER_AGENT = 'netapi-mcp/0.3 (+https://mcp.netapi.com)';
 /** a tool call waits this long for the site before it fails with a bad_response error */
 const API_TIMEOUT_MS = 30_000;
 

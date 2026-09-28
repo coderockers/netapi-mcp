@@ -1,6 +1,6 @@
 {
   "name": "netapi-mcp",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Domain data from NetAPI: Top 1M domain ranks, compromised domain / IP checks, newly registered domain search. TLD, registrar and DNS-provider statistics, and (with a plan) domain / IP lookups and registered domain lists.",
   "private": true,
   "type": "module",

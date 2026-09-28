@@ -17,7 +17,7 @@ import { bearerToken, type Env } from './api.js';
 import { registerTools } from './tools.js';
 import { unauthorized, validateToken } from './auth.js';
 
-const SERVER_INFO = { name: 'netapi', version: '0.2.0' };
+const SERVER_INFO = { name: 'netapi', version: '0.3.0' };
 const MCP_PATHS = new Set(['/mcp', '/']);
 const PUBLIC_PATHS = new Set(['/mcp/public', '/public']);
 const PROTECTED_RESOURCE_PATHS = new Set(['/.well-known/oauth-protected-resource', '/.well-known/oauth-protected-resource/mcp']);

@@ -3,7 +3,7 @@
   "name": "com.netapi/mcp",
   "description": "Domain data: Top 1M domain ranks, compromised checks, new domain search, registered domain lists.",
   "title": "NetAPI",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "websiteUrl": "https://netapi.com/help/mcp/",
   "repository": {
     "url": "https://github.com/coderockers/netapi-mcp",
