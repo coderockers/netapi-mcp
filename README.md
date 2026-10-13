@@ -42,7 +42,7 @@ The server speaks standard MCP OAuth (authorization server `https://netapi.com`,
 
 **claude.ai / Claude Desktop:** Settings → Connectors → Add custom connector → URL `https://mcp.netapi.com/mcp` → Connect.
 
-**ChatGPT:** Settings → Connectors (developer mode) → Add → MCP server URL `https://mcp.netapi.com/mcp`, authentication OAuth.
+**ChatGPT:** install [NetAPI from the ChatGPT plugin directory](https://chatgpt.com/plugins/plugin_asdk_app_6aba38a3e0248191a954e7f73e0e6edd) and sign in when asked. Developer mode still works: Settings → Connectors → Add → MCP server URL `https://mcp.netapi.com/mcp`, authentication OAuth.
 
 **Claude Code**
 
