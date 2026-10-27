@@ -1,6 +1,6 @@
 # NetAPI MCP server
 
-An [MCP](https://modelcontextprotocol.io/) server that gives AI assistants and agents (Claude, Cursor, ChatGPT, Windsurf, VS Code Copilot and any other MCP client) access to [NetAPI](https://netapi.com/) domain intelligence: registered domains of 1,584 TLDs, newly registered and deleted domains, DNS-provider and registrar data, the free NetAPI Top 1M popularity ranking and the compromised domain / IP feed.
+An [MCP](https://modelcontextprotocol.io/) server that gives AI assistants and agents (Claude, Cursor, ChatGPT, Windsurf, VS Code Copilot and any other MCP client) access to [NetAPI](https://netapi.com/) domain intelligence: registered domains of 1,584 TLDs, newly registered and deleted domains, DNS-provider and registrar data, the free NetAPI Top 1M popularity ranking and the compromised domain feed.
 
 **Endpoints (Streamable HTTP):**
 
@@ -15,7 +15,7 @@ Free (no plan needed):
 
 | Tool | What it answers |
 |------|-----------------|
-| `check_compromised` | Is this domain or IP in the compromised feed (malware, phishing, abuse)? Seen in the last 24 h or ever, block reason, registrar. |
+| `check_compromised` | Is this domain in the compromised feed (malware, phishing, abuse)? Seen in the last 24 h or ever, block reason, registrar. |
 | `search_new_domains` | Domains registered in the last 1-7 days that contain a string: brand monitoring, typosquatting, phishing, keyword trends. |
 | `tld_stats` | Registry, active domains, new / deleted in 24 h, growth over 7-365 days, abuse rate, Top 1M presence, policies of a TLD. |
 | `domain_rank` | Rank of a domain in the NetAPI Top 1M and inside its TLD. |
@@ -30,7 +30,6 @@ With a [NetAPI plan](https://netapi.com/plans/):
 | Tool | What it answers |
 |------|-----------------|
 | `lookup_domain` | Nameservers, IP, country, registration / expiration dates, registrar of a domain. |
-| `lookup_ip` | Domains hosted on an IP (reverse IP). |
 | `get_download_url` | A 24-hour link to a domain list or dataset file: the domains of a zone (active / new / deleted, one zone or all zones), of a DNS provider or of a registrar. Lists = domain names (any plan), datasets = one row per domain with nameservers, IP, country, emails, phones (Plus or Pro). |
 | `account_info` | Plan and limits of the connected account. |
 
