@@ -15,7 +15,7 @@ Free (no plan needed):
 
 | Tool | What it answers |
 |------|-----------------|
-| `check_compromised` | Is this domain or IP in the compromised feed (malware, phishing, abuse)? Seen in the last 24 h or ever, block reason, registrar. |
+| `check_compromised` | Is this domain or IP in the compromised feed (malware, phishing, abuse)? Seen in the last 24 h (an IP: 48 h) or ever, block reason, registrar. |
 | `search_new_domains` | Domains registered in the last 1-7 days that contain a string: brand monitoring, typosquatting, phishing, keyword trends. |
 | `tld_stats` | Registry, active domains, new / deleted in 24 h, growth over 7-365 days, abuse rate, Top 1M presence, policies of a TLD. |
 | `domain_rank` | Rank of a domain in the NetAPI Top 1M and inside its TLD. |
