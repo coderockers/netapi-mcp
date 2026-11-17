@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
+    "stdio": "tsx src/stdio.ts",
     "typecheck": "tsc --noEmit"
   },
   "license": "MIT",
@@ -20,6 +21,7 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20260927.1",
+    "tsx": "^4.23.15",
     "typescript": "^7.0.2",
     "wrangler": "^4.142.0"
   }

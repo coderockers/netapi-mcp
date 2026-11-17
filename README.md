@@ -90,6 +90,17 @@ npm run deploy     # wrangler deploy (or connect the repo in the Cloudflare dash
 
 Test with the MCP Inspector: `npx @modelcontextprotocol/inspector`, add a Streamable HTTP server with `http://localhost:8787/mcp/public` (or the production URL to test the sign-in).
 
+### Run locally over stdio
+
+The same tools without the Worker, for MCP clients that start a local process (and for directories that build the server in a container):
+
+```bash
+npm install
+npm run stdio      # tsx src/stdio.ts
+```
+
+Without a token it offers the free tools with anonymous limits, like `/mcp/public`. Set `NETAPI_API_TOKEN` to a NetAPI API token for the account tools and the limits of your plan. Every tool call is one GET to `https://netapi.com/api-json/` (`NETAPI_JSON_API` overrides it).
+
 ## MCP Registry
 
 The server is listed in the [MCP Registry](https://registry.modelcontextprotocol.io/) as `com.netapi/mcp` (remote `https://mcp.netapi.com/mcp`); `server.json` is its manifest. A new version: bump `version` in `server.json`, `mcp-publisher login http --domain netapi.com` (domain proof via `/.well-known/mcp-registry-auth`; `dns` works too), then `mcp-publisher publish` from this directory.

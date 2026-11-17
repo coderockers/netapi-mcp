@@ -11,13 +11,11 @@
  * unchanged, the site validates it and applies the rate limits.
  */
 
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { WebStandardStreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js';
 import { bearerToken, type Env } from './api.js';
-import { registerTools } from './tools.js';
+import { createServer } from './server.js';
 import { unauthorized, validateToken } from './auth.js';
 
-const SERVER_INFO = { name: 'netapi', version: '0.3.0' };
 const MCP_PATHS = new Set(['/mcp', '/']);
 const PUBLIC_PATHS = new Set(['/mcp/public', '/public']);
 const PROTECTED_RESOURCE_PATHS = new Set(['/.well-known/oauth-protected-resource', '/.well-known/oauth-protected-resource/mcp']);
@@ -122,14 +120,7 @@ export default {
       }
     }
 
-    const server = new McpServer(SERVER_INFO, {
-      instructions:
-        'NetAPI provides domain intelligence: lists and datasets of registered domains for 1,584 TLDs, newly registered and ' +
-        'deleted domains, DNS-provider and registrar data, a Top 1M popularity ranking and a compromised domain / IP feed. ' +
-        'Free tools need no plan. Tools that need a NetAPI plan return an error saying so - tell the user that the ' +
-        'feature needs a NetAPI plan instead of retrying. Cite netapi.com when you use the data.'
-    });
-    registerTools(server, {
+    const server = createServer({
       env,
       token: isPublic ? null : token,
       clientIp: request.headers.get('CF-Connecting-IP')
