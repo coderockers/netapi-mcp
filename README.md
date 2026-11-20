@@ -108,3 +108,7 @@ The server is listed in the [MCP Registry](https://registry.modelcontextprotocol
 ## License
 
 MIT for the code in this repository. NetAPI data is subject to the [Terms of Service](https://netapi.com/tos/); the free datasets are CC BY 4.0.
+
+## Mirror
+
+A read-only copy of this repository is on GitLab: https://gitlab.com/netapi-com/netapi-mcp (synced on every push). Issues and pull requests here, please.

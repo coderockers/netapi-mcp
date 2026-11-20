@@ -1,0 +1,39 @@
+# Mirrors this repository to https://gitlab.com/netapi-com/netapi-mcp (read-only copy, issues and pull requests stay here).
+# Pushes the master branch and the tags over SSH with the deploy key in the secret GITLAB_MIRROR_KEY, which may push
+# to that one GitLab project group only. The GitLab host key is pinned (fingerprint SHA256:eUXGGm1YGsMAS7vkcx6JOJdOGHPem5gQp4taiCfCLB8).
+
+name: Mirror to GitLab
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mirror-gitlab
+  cancel-in-progress: false
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 0
+
+      - name: Push to gitlab.com/netapi-com/netapi-mcp
+        env:
+          MIRROR_KEY: ${{ secrets.GITLAB_MIRROR_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$MIRROR_KEY" > ~/.ssh/gitlab_mirror
+          chmod 600 ~/.ssh/gitlab_mirror
+          echo 'gitlab.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAfuCHKVTjquxvt6CM6tdG4SLp1Btn/nOeHHE5UOzRdf' > ~/.ssh/known_hosts
+          export GIT_SSH_COMMAND='ssh -i ~/.ssh/gitlab_mirror -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes'
+          git fetch --tags --force origin
+          git push git@gitlab.com:netapi-com/netapi-mcp.git 'refs/remotes/origin/master:refs/heads/master'
+          git push git@gitlab.com:netapi-com/netapi-mcp.git --tags
