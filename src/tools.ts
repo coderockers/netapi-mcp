@@ -57,9 +57,9 @@ export function registerTools(server: McpServer, ctx: ToolContext): void {
     {
       title: 'Check a domain or IP against the compromised feed',
       description:
-        'Is a domain name or IP address in the NetAPI compromised feed (malware, phishing, abuse)? Returns whether it was ' +
-        'seen in the last 24 hours, an IP in the last 48 hours (listed_now), or earlier (listed_ever, an IP within the last 30 days), ' +
-        'first/last seen dates, the block reason and the registrar. ' +
+        'Is a domain name or IP address in the NetAPI compromised feed (malware, phishing, abuse)? Returns whether a domain is ' +
+        'in the current list, an IP was seen in the last 48 hours (listed_now), or was listed earlier (listed_ever, an IP within the last 30 days), ' +
+        'first/last seen dates, the block reason, the threat type of a domain (threat_type, how it got into the list) and the registrar. ' +
         'Subdomains are matched against their parent domains too. Free, no account needed.',
       inputSchema: { value: z.string().min(1).max(255).describe('Domain name (example.com, also a URL or hostname) or an IPv4 / IPv6 address') },
       annotations: READ_ONLY
