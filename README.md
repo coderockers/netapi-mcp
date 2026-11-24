@@ -1,5 +1,7 @@
 # NetAPI MCP server
 
+[![coderockers/netapi-mcp MCP server](https://glama.ai/mcp/servers/coderockers/netapi-mcp/badges/score.svg)](https://glama.ai/mcp/servers/coderockers/netapi-mcp)
+
 An [MCP](https://modelcontextprotocol.io/) server that gives AI assistants and agents (Claude, Cursor, ChatGPT, Windsurf, VS Code Copilot and any other MCP client) access to [NetAPI](https://netapi.com/) domain intelligence: registered domains of 1,584 TLDs, newly registered and deleted domains, DNS-provider and registrar data, the free NetAPI Top 1M popularity ranking and the compromised domain / IP feed.
 
 **Endpoints (Streamable HTTP):**
